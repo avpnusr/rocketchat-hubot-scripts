@@ -1,0 +1,58 @@
+#! /bin/bash
+
+# this script uses yt-dlp to download / convert youtube-videos to mp3 and send them back to rocketchat
+# https://github.com/yt-dlp/yt-dlp
+
+# configurable variables
+RCADDRESS="https://rocketchat.example.org"
+XAUTHTOKEN="x-auth-token-for-bot-goes-here"
+RCUSERID="rocket-chat-user-id-for-bot"
+
+export LD_LIBRARY_PATH=/usr/local/lib
+
+# check for yt-dlp binary 
+if [ ! -f /home/hubot/scripts/youtube-dl ]; then
+curl -sL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" > /home/hubot/scripts/youtube-dl
+chmod 0755 /home/hubot/scripts/youtube-dl
+fi
+
+cd /tmp
+
+IFS=$'\n'
+
+# variables handed over by coffee-script
+QUERY="$1"
+RID="$2"
+YTID="$3"
+RAND=$RANDOM
+
+if [ "$YTID" == "ID" ]; then
+timeout 600 /usr/local/bin/python3.7 /home/hubot/scripts/youtube-dl -f bestaudio -x --audio-format mp3 --audio-quality 7 https://www.youtube.com/watch?v=$QUERY > /tmp/yt_$RAND
+STATUS=$?
+[ $STATUS == 124 ] && echo "Something went terribly wrong ..." && rm -f /tmp/yt_$RAND && exit 0
+
+else
+
+timeout 600 /usr/local/bin/python3.7 /home/hubot/scripts/youtube-dl -f bestaudio -x --audio-format mp3 --audio-quality 7 "ytsearch1:$QUERY" > /tmp/yt_$RAND
+STATUS=$?
+[ $STATUS == 124 ] && echo "Something went terribly wrong ..." && rm -f /tmp/yt_$RAND && exit 0
+
+fi
+
+FILENAME=$(tail /tmp/yt_$RAND | grep .mp3 | awk -F "Destination: " '{print $2}')
+VID=$(cat /tmp/yt_$RAND | grep "Downloading webpage" | awk -F ":" '{print $1}' | awk -F "\[youtube\] " '{print $2}')
+FNCLEAN="$(echo $FILENAME | awk -F " \[$VID\]" '{print $1}').mp3"
+
+mv $FILENAME $FNCLEAN
+rm -f /tmp/yt_$RAND
+
+curl "$RCADDRESS/api/v1/rooms.upload/$RID" \
+    -F "file=@$FNCLEAN;type=audio/mp3" \
+    -F "msg=Your download is ready" \
+    -F "description=Converted MP3 from YouTube" \
+    -H "X-Auth-Token: $XAUTHTOKEN" \
+    -H "X-User-Id: $RCUSERID"
+
+rm -f $FNCLEAN
+
+exit 0
