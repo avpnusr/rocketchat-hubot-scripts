@@ -26,12 +26,38 @@ RID="$2"
 YTID="$3"
 RAND=$RANDOM
 
+if echo "$QUERY" | grep -q ".yt"; then
+MSG="*Sorry, command is fired wrong => .yt / .ytid have to be sent without any text before it*"
+curl -k -H "X-Auth-Token: $XAUTHTOKEN" \
+     -H "X-User-Id: $RCUSERID" \
+     -H "Content-type:application/json" \
+     $RCADDRESS/api/v1/chat.postMessage \
+     -d '{ "channel": '\"#${RID}\"', "text": "'"${MSG}"'" }'
+
+exit 0
+fi
+
 if [ "$YTID" == "ID" ]; then
+
+MSG="Searching and converting - I'm a small ALIX, this will take a minute ..."
+curl -k -H "X-Auth-Token: $XAUTHTOKEN" \
+     -H "X-User-Id: $RCUSERID" \
+     -H "Content-type:application/json" \
+     $RCADDRESS/api/v1/chat.postMessage \
+     -d '{ "channel": '\"#${RID}\"', "text": "'"${MSG}"'" }'
+
 timeout 600 /usr/local/bin/python3.7 /home/hubot/scripts/youtube-dl -f bestaudio -x --audio-format mp3 --audio-quality 7 https://www.youtube.com/watch?v=$QUERY > /tmp/yt_$RAND
 STATUS=$?
 [ $STATUS == 124 ] && echo "Something went terribly wrong ..." && rm -f /tmp/yt_$RAND && exit 0
 
 else
+
+MSG="Searching and converting - I'm a small ALIX, this will take a minute ..."
+curl -k -H "X-Auth-Token: $XAUTHTOKEN" \
+     -H "X-User-Id: $RCUSERID" \
+     -H "Content-type:application/json" \
+     $RCADDRESS/api/v1/chat.postMessage \
+     -d '{ "channel": '\"#${RID}\"', "text": "'"${MSG}"'" }'
 
 timeout 600 /usr/local/bin/python3.7 /home/hubot/scripts/youtube-dl -f bestaudio -x --audio-format mp3 --audio-quality 7 "ytsearch1:$QUERY" > /tmp/yt_$RAND
 STATUS=$?
