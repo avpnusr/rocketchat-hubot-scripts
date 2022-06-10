@@ -39,7 +39,7 @@ fi
 
 if [ "$YTID" == "ID" ]; then
 
-MSG="Searching and converting - I'm a small ALIX, this will take a minute ..."
+MSG="Searching and converting ..."
 curl -k -H "X-Auth-Token: $XAUTHTOKEN" \
      -H "X-User-Id: $RCUSERID" \
      -H "Content-type:application/json" \
@@ -52,7 +52,7 @@ STATUS=$?
 
 else
 
-MSG="Searching and converting - I'm a small ALIX, this will take a minute ..."
+MSG="Searching and converting ..."
 curl -k -H "X-Auth-Token: $XAUTHTOKEN" \
      -H "X-User-Id: $RCUSERID" \
      -H "Content-type:application/json" \
