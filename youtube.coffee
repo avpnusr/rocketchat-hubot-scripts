@@ -10,7 +10,7 @@ module.exports = (robot) ->
     exec = require('child_process').exec
     query = res.message.text.slice(4).replace /^\s+|\s+$/g, ""
     room = res.message.user.roomID
-    res.send "Searching and converting ..."
+#    res.send "Searching and converting ..."
     exec "/home/hubot/scripts/yt2mp3 \"#{query}\" \"#{room}\"" 
 
 # again define command the bos listens for 
@@ -19,6 +19,6 @@ module.exports = (robot) ->
     exec = require('child_process').exec
     query = res.message.text.slice(6).replace /^\s+|\s+$/g, ""
     room = res.message.user.roomID
-    res.send "Searching and converting ..."
+#    res.send "Searching and converting ..."
 # calls an external script - yt2mp3 in bash
     exec "/home/hubot/scripts/yt2mp3 \"#{query}\" \"#{room}\" \"ID\""
